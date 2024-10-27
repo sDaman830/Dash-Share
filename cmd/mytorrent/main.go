@@ -29,10 +29,32 @@ func decodeBencode(bencodedString string) (interface{}, error) {
 		}
 
 		return bencodedString[firstColonIndex+1 : firstColonIndex+1+length], nil
+	} 
+
+
+ } else if rune(bencodedString[0]) == 'l' {//+
+
+		colonIndex := 2 // Start after "l" to find the length of the string
+		for colonIndex < len(bencodedString) && bencodedString[colonIndex] != ':' {
+			colonIndex++
+		}
+
+		// Extract the length string (characters between 'l' and ':')
+		lengthStr := bencodedString[1:colonIndex]
+		length, err := strconv.Atoi(lengthStr)
+		if err != nil {
+			fmt.Println("Error parsing length:", err)
+			return "", err
+		}
+
+		// Extract the actual string based on the parsed length
+		start := colonIndex + 1
+		Real_string := bencodedString[start : start+length]
+		return Real_string, nil
 	} else {
 		return "", fmt.Errorf("Only strings are supported at the moment")
 	}
-}
+
 
 func main() {
 
@@ -43,16 +65,16 @@ func main() {
 	if command == "decode" {
 		//
 		//
-		// bencodedValue := os.Args[2]
-		//
-		// decoded, err := decodeBencode(bencodedValue)
-		// if err != nil {
-		// 	fmt.Println(err)
-		// 	return
-		// }
-		//
-		// jsonOutput, _ := json.Marshal(decoded)
-		// fmt.Println(string(jsonOutput))
+		bencodedValue := os.Args[2]
+		
+		decoded, err := decodeBencode(bencodedValue)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		
+		jsonOutput, _ := json.Marshal(decoded)
+		fmt.Println(string(jsonOutput))
 	} else {
 		fmt.Println("Unknown command: " + command)
 		os.Exit(1)
